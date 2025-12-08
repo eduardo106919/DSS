@@ -1,14 +1,15 @@
 
 public class Bilhete {
+
     private String numero;
     private int totParagens;
 
     public String getNumero() {
-        return numero;
+        return this.numero;
     }
 
     public int getTotParagens() {
-        return totParagens;
+        return this.totParagens;
     }
 
 }

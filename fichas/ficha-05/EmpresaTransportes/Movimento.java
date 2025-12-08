@@ -1,26 +1,23 @@
-import java.util.Date;
+
+import java.time.LocalDate;
 
 public class Movimento {
 
     private int numero;
-    private Date horaEntrada;
+    private LocalDate horaEntrada;
     private String localEntrada;
     private Bilhete bil;
 
-    public Date getHora() {
-        return horaEntrada;
-    }
-
-    public int getNumero() {
-        return numero;
+    public LocalDate getHora() {
+        return this.horaEntrada;
     }
 
     public String getLocalEntrada() {
-        return localEntrada;
+        return this.localEntrada;
     }
 
     public Bilhete getBil() {
-        return bil;
+        return this.bil;
     }
 
 }
