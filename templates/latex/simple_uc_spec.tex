@@ -1,0 +1,152 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage[margin=1in]{geometry}
+
+% Font: PT Sans
+\usepackage{paratype}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{etoolbox}
+
+% Define Colors
+\definecolor{darkblue}{HTML}{00008B}
+\definecolor{normalGreen}{HTML}{27AE60}
+\definecolor{darkorange}{HTML}{CC8400}
+\definecolor{darkred}{HTML}{B22222}
+\definecolor{lightgrey}{HTML}{969696}
+
+% Custom Styles for Lists
+\setlist[enumerate]{nosep, leftmargin=1.5em, label=\arabic*.}
+
+% --- The Use Case Command ---
+\newcommand{\ucspec}[8]{
+	\begin{tcolorbox}[
+		colframe=lightgrey, 
+		colback=white, 
+		arc=4pt, 
+		boxrule=0.5pt,
+		left=12pt, right=12pt, top=12pt, bottom=12pt
+		]
+		{\Large\bfseries\color{darkblue!60!black} Caso de Uso: #1}
+		
+		\textcolor{lightgrey!70!black}{\hrule height 0.5pt}
+		\vspace{10pt}
+		
+		\textbf{Descrição:} #2\\[4pt]
+		\textbf{Cenários:} #3\\[4pt]
+		\textbf{Pré-Condições:} #4\\[4pt]
+		\textbf{Pós-Condições:} #5
+		
+		\vspace{10pt}
+		{\bfseries\color{normalGreen} Fluxo Normal:}
+		\begin{enumerate}
+			#6
+		\end{enumerate}
+		
+		\ifstrempty{#7}{}{
+			\vspace{10pt}
+			{\bfseries\color{darkorange} Fluxos Alternativos:}
+			
+			#7
+		}
+		
+		\ifstrempty{#8}{}{
+			\vspace{10pt}
+			{\bfseries\color{darkred} Fluxos de Exceção:}
+			
+			#8
+		}
+	\end{tcolorbox}
+}
+
+% Helper for sub-flows
+\newcommand{\subflow}[3]{%
+	\vspace{6pt}
+	\hspace*{10pt} \textbf{Condição:} #1 (Passo #2)
+	\begin{enumerate}[label=#2.\arabic*, leftmargin=3.5em]
+		#3
+	\end{enumerate}
+}
+
+\begin{document}
+	
+	\ucspec
+	{Nome do Use Case}
+	{Descrição breve do Use Case}
+	{Identificar cenários em que o Use Case está presente}
+	{Condições necessárias para a execução do Use Case}
+	{Condições a satisfazer no fim do Use Case}
+	{% Fluxo Normal
+		\item 
+		\item 
+		\item 
+		\item 
+	}
+	{% Fluxos Alternativos
+		\subflow{Condição que deu origem ao fluxo alternativo}{1}{
+			\item 
+			\item 
+			\item 
+		}
+	}
+	{% Fluxos de Exceção
+		\subflow{Condição que deu origem ao fluxo de exceção}{2}{
+			\item 
+			\item 
+		}
+	}
+
+	\ucspec
+	{Nome do Use Case}
+	{Descrição breve do Use Case}
+	{Identificar cenários em que o Use Case está presente}
+	{Condições necessárias para a execução do Use Case}
+	{Condições a satisfazer no fim do Use Case}
+	{% Fluxo Normal
+		\item 
+		\item 
+		\item 
+		\item 
+	}
+	{}
+	{}
+	
+	\ucspec
+	{Levantar Dinheiro}
+	{Cliente levanta quantia da máquina.}
+	{Cenários 1 e 2...}
+	{Sistema tem notas.}
+	{Cliente tem quantia desejada...}
+	{% Fluxo Normal
+		\item Cliente apresenta cartão e PIN.
+		\item Máquina MB valida acesso e pede operação.
+		\item Cliente indica que pretende levantar dada quantia.
+		\item Máquina MB pergunta se quer talão.
+		\item Cliente responde que não.
+		\item Máquina MB devolve cartão, fornece notas e actualiza saldo da conta.
+		\item Cliente retira cartão e notas.
+	}
+	{% Fluxos Alternativos
+		\subflow{Cliente quer autenticar-se com reconhecimento facial.}{1}{
+			\item Cliente apresenta cartão e pede reconhecimento facial.
+			\item Máquina recolhe imagem para validação de acesso.
+			\item Regressa a 2.
+		}
+		\subflow{Cliente quer talão.}{5}{
+			\item Cliente responde que sim.
+			\item Máquina MB devolve cartão, notas e talão.
+			\item Cliente retira cartão, notas e talão e actualiza saldo da conta.
+		}
+	}
+	{% Fluxos de Exceção
+		\subflow{O sistema não encontra correspondência para os dados inseridos.}{3}{
+			\item Máquina MB avisa sobre PIN inválido e devolve cartão.
+			\item Cliente retira cartão.
+		}
+	}
+	
+\end{document}
