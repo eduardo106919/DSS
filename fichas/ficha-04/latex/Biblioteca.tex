@@ -1,0 +1,237 @@
+\documentclass[11pt, landscape]{article}
+
+% change the size of the page
+\usepackage[
+	papersize={20in, 11.5in},
+	margin=1in
+]{geometry}
+
+\usepackage[table, dvipsnames]{xcolor}
+\usepackage{tabularx}
+\usepackage{fontspec}
+\usepackage{etoolbox}
+\usepackage{enumitem}
+\usepackage{environ}
+\usepackage{xltabular}
+\usepackage[most]{tcolorbox}
+
+\setmainfont{PT Sans} 
+\usepackage[portuguese]{babel}
+
+% --- Color Palette ---
+\definecolor{primaryBlue}{HTML}{2C3E50}
+\definecolor{normalGreen}{HTML}{27AE60}
+\definecolor{altOrange}{HTML}{E67E22}
+\definecolor{excRed}{HTML}{C0392B}
+\definecolor{lightGray}{HTML}{F8F9FA}
+\definecolor{borderGray}{HTML}{D1D1D1}
+
+% --- Table Styling ---
+\renewcommand{\arraystretch}{1.6}
+\setlength{\arrayrulewidth}{0.5pt}
+\arrayrulecolor{borderGray}
+
+% --- Counters ---
+\newcounter{stepcount}
+\newcounter{substepcount}
+
+% --- Commands ---
+
+\newcommand{\ucHeader}[5]{
+	\noindent {\color{primaryBlue}\Huge \textbf{Caso de Uso: #1}}
+	
+	\vspace{1.5em}
+	\noindent
+	\begin{tabularx}{\textwidth}{|l|X|}
+		\hline
+		\rowcolor{lightGray} \textbf{Descrição} & #2 \\ \hline
+		\textbf{Cenários} & #3 \\ \hline
+		\rowcolor{lightGray} \textbf{Pré-condições} & #4 \\ \hline
+		\textbf{Pós-condições} & #5 \\ \hline
+	\end{tabularx}
+}
+
+\NewEnviron{flowtable}{
+	\noindent
+	\begin{xltabular}{\textwidth}{|>{\hsize=1.2\hsize}X|>{\hsize=0.8\hsize}X|>{\hsize=1.4\hsize}X|>{\hsize=0.6\hsize}X|}
+		\hline
+		\rowcolor{lightGray} 
+		\textbf{Passos} & \textbf{Lógica de Negócio} & \textbf{Definição da API} & \textbf{Subsistema} \\ \hline
+		\endfirsthead
+		
+		\hline
+		\rowcolor{lightGray} 
+		\textbf{Passos} & \textbf{Lógica de Negócio} & \textbf{Definição da API} & \textbf{Subsistema} \\ \hline
+		\endhead
+		
+		\BODY
+	\end{xltabular}
+}
+
+\newcommand{\step}[4]{
+	\stepcounter{stepcount}
+	\thestepcount. #1 & #2 & \texttt{#3} & #4 \\ \hline
+}
+
+\newcommand{\substep}[4]{
+	\stepcounter{substepcount}
+	\theparentstep.\thesubstepcount\ #1 & #2 & \texttt{#3} & #4 \\ \hline
+}
+
+% lazy step: use it when the operation will not be reflected in the system
+\newcommand{\lstep}[1]{
+	\step{#1}{-}{-}{-}
+}
+
+% lazy sub step: use it when the operation will not be reflected in the system
+\newcommand{\lsubstep}[1]{
+	\substep{#1}{-}{-}{-}
+}
+
+\newcommand{\normalFlowHeader}{
+	\setcounter{stepcount}{0}
+	
+	\vspace{1em}
+	
+	\noindent
+	\begin{tcolorbox}[
+		enhanced,
+		sharp corners,
+		boxrule=0pt,
+		frame hidden,
+		colback=normalGreen!8!white,
+		left=5pt, right=5pt,
+		top=8pt, bottom=8pt,
+		after skip=0pt,
+		]
+		{\color{normalGreen}\Large\bfseries Fluxo Normal}
+	\end{tcolorbox}
+	\nointerlineskip
+}
+
+\newcommand{\subFlowHeader}[4]{
+	\setcounter{substepcount}{0}
+	\def\theparentstep{#3}
+	
+	\noindent
+	\begin{tcolorbox}[
+		enhanced,
+		sharp corners,
+		boxrule=0pt,
+		frame hidden,
+		colback=#1!8!white,
+		left=5pt, right=5pt,
+		top=5pt, bottom=5pt,
+		after skip=0pt,
+		]
+		{\color{#1}\Large\bfseries #2} \vspace{0.3em} \\
+		\noindent\hspace{2pt}\vrule width 2pt depth 0.8ex height 2.2ex \hspace{0.5em}
+		\begin{minipage}{\dimexpr\textwidth-25pt}
+			\small \textbf{PASSO #3} \quad \textbullet \quad \textbf{CONDIÇÃO:} \textit{#4}
+		\end{minipage}
+	\end{tcolorbox}
+	\nointerlineskip
+}
+
+\begin{document}
+
+	\ucHeader{Pagar Multas}
+	{Funcionário regista o pagamento de multas pelo atraso na entrega de livros requisitados}
+	{Cenários 2 e 5}
+	{Funcionário autenticado}
+	{Multas Pagas}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\step{Sistema calcula valor de multas a pagar}{Calcular o valor de multas a pagar para o utente}{calcularValorMultas(id : String) : float}{Utentes}
+		\lstep{Funcionário confirma pagamento de multas}
+		\step{Sistema imprime comprovativo de pagamento de multas}{Gerar comprovativo de pagamento de multas}{gerarComprovativoPagamento(codPag : String) : Comprovativo}{Utentes}
+	\end{flowtable}
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{2}{Utente não paga as multas}
+	\begin{flowtable}
+		\lsubstep{Sistema regista que utente não pagou as multas}
+	\end{flowtable}
+	
+	\newpage
+	
+	\ucHeader{Validar Credenciais de Utente}
+	{Sistema valida credenciais de utente para efetuar requisições, entregas e pagamento de multas}
+	{Cenário 1, 2, 3, 4 e 5}
+	{True}
+	{Credenciais autenticadas}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\lstep{Funcionário apresenta número e nome de utente}
+		\step{Sistema valida número e nome de utente}{Validar credenciais de utente}{validarUtente(id : String, nome : String) : boolean}{Utentes}
+	\end{flowtable}
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{2}{Número e nome inexistentes}
+	\begin{flowtable}
+		\lsubstep{Sistema indica que utente é inexistente}
+	\end{flowtable}
+	
+	\newpage
+	
+	\ucHeader{Registar Entrega de Livro}
+	{Funcionário regista a entrega de livros requisitados por utentes}
+	{Cenário 4 e 5}
+	{Funcionário autenticado}
+	{Devolução do livro registada e estado do livro alterado para 'Disponível'}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\lstep{\texttt{<<include>>} Validar Credenciais de Utente}
+		\lstep{Funcionário fornece identificação do livro}
+		\step{Sistema valida identificação do livro}{Verificar se livro pertence à biblioteca}{livroExiste(id : String) : boolean}{Livros}
+		\step{Sistema valida que entrega está dentro do prazo}{Verificar se entrega está dentro do prazo}{entregaDentroPrazo(utente : String) : boolean}{Utentes}
+		\step{Sistema regista a entrega do livro}{Registar entrega de livro}{registarEntrega(idLivro : String, idUtente : String) : Devolucao}{Livros}
+		\step{Sistema altera estado do livro para 'Disponível'}{Alterar estado de livro}{alterarEstado(livro : String, estado : String) : void}{Livros}
+		\step{Sistema gera comprovativo de devolução}{Gerar comprovativo de devolução}{gerarComprovativoDevolucao(idDevol : String) : Comprovativo}{Livros}
+	\end{flowtable}
+	
+	\subFlowHeader{altOrange}{Fluxo Alternativo}{4}{Entrega está fora do prazo}
+	\begin{flowtable}
+		\lsubstep{\texttt{<<include>>} Pagar Multas}
+		\lsubstep{Regressa a 5}
+	\end{flowtable}
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{3}{Livro não pertence à biblioteca}
+	\begin{flowtable}
+		\lsubstep{Sistema informa que livro não pertence à biblioteca}
+	\end{flowtable}
+	
+	\newpage
+	
+	\ucHeader{Registar Requisição de Livro}
+	{Funcionário regista a requisição de um livro por parte de um utente}
+	{Cenário 1, 2 e 3}
+	{Funcionário autenticado}
+	{Registo de requisição adicionado ao sistema e estado do livro alterado para 'Requisitado'}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\lstep{\texttt{<<include>>} Validar Credenciais de Utente}
+		\step{Sistema valida que utente não tem multas a pagar}{Verificar se utente não tem multas a pagar}{multasPorPagar(utente : String) : boolean}{Utentes}
+		\lstep{Funcionário indica código do livro}
+		\step{Sistema verifica disponibilidade do livro para ser requisitado}{Verificar a disponibilidade do para ser requisitado}{podeSerRequisitado(livro : String) : boolean}{Livros}
+		\step{Sistema regista requisição do livro}{Registar requisição de livro}{registarRequisicao(livro : String, utente : String) : Requisicao}{Livros}
+		\step{Sistema altera estado do livro para 'Requisitado'}{Alterar estado do livro}{alterarEstadoLivro(livro : String, estado : String) : void}{Livros}
+		\step{Sistema calcula data de devolução do livro}{Calcular data de devolução de livro}{getDataDevolucao(livro : String) : LocalDateTime}{Livros}
+		\step{Sistema gera comprovativo da requisição}{Gerar comprovativo de requisição}{gerarComprovativoRequisicao(requisicao : String) : ComprovativoRequisicao}{Livros}
+	\end{flowtable}
+	
+	\subFlowHeader{altOrange}{Fluxo Alternativo}{2}{Utente tem multas a pagar}
+	\begin{flowtable}
+		\lsubstep{\texttt{<<include>>} Pagar Multas}
+		\substep{Sistema prolonga a data de devolução dos livros por entregar}{Prolongar data de devolução de livros}{prolongarDataDevolucao(utente : String) : void}{Utentes}
+		\lsubstep{Regressa a 3}
+	\end{flowtable}
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{4}{Livro não pode ser requsitado}
+	\begin{flowtable}
+		\lsubstep{Sistema informa que livro não pode ser requisitado}
+	\end{flowtable}
+	
+\end{document}

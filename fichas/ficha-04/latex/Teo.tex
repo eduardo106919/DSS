@@ -1,0 +1,186 @@
+\documentclass[11pt, landscape]{article}
+% change the size of the page
+\usepackage[
+	papersize={20in, 11.5in},
+	margin=1in
+]{geometry}
+\usepackage[table, dvipsnames]{xcolor}
+\usepackage{tabularx}
+\usepackage{fontspec}
+\usepackage{etoolbox}
+\usepackage{enumitem}
+\usepackage{environ}
+\usepackage{xltabular}
+\usepackage[most]{tcolorbox}
+
+\setmainfont{PT Sans} 
+\usepackage[portuguese]{babel}
+
+% --- Color Palette ---
+\definecolor{primaryBlue}{HTML}{2C3E50}
+\definecolor{normalGreen}{HTML}{27AE60}
+\definecolor{altOrange}{HTML}{E67E22}
+\definecolor{excRed}{HTML}{C0392B}
+\definecolor{lightGray}{HTML}{F8F9FA}
+\definecolor{borderGray}{HTML}{D1D1D1}
+
+% --- Table Styling ---
+\renewcommand{\arraystretch}{1.6}
+\setlength{\arrayrulewidth}{0.5pt}
+\arrayrulecolor{borderGray}
+
+% --- Counters ---
+\newcounter{stepcount}
+\newcounter{substepcount}
+
+% --- Commands ---
+
+\newcommand{\ucHeader}[5]{
+	\noindent {\color{primaryBlue}\Huge \textbf{Caso de Uso: #1}}
+	
+	\vspace{1.5em}
+	\noindent
+	\begin{tabularx}{\textwidth}{|l|X|}
+		\hline
+		\rowcolor{lightGray} \textbf{Descrição} & #2 \\ \hline
+		\textbf{Cenários} & #3 \\ \hline
+		\rowcolor{lightGray} \textbf{Pré-condições} & #4 \\ \hline
+		\textbf{Pós-condições} & #5 \\ \hline
+	\end{tabularx}
+}
+
+\NewEnviron{flowtable}{
+	\noindent
+	\begin{xltabular}{\textwidth}{|>{\hsize=1.4\hsize}X|>{\hsize=0.8\hsize}X|>{\hsize=1.2\hsize}X|>{\hsize=0.6\hsize}X|}
+		\hline
+		\rowcolor{lightGray} 
+		\textbf{Passos} & \textbf{Lógica de Negócio} & \textbf{Definição da API} & \textbf{Subsistema} \\ \hline
+		\endfirsthead
+		
+		\hline
+		\rowcolor{lightGray} 
+		\textbf{Passos} & \textbf{Lógica de Negócio} & \textbf{Definição da API} & \textbf{Subsistema} \\ \hline
+		\endhead
+		
+		\BODY
+	\end{xltabular}
+}
+
+\newcommand{\step}[4]{
+	\stepcounter{stepcount}
+	\thestepcount. #1 & #2 & \texttt{#3} & #4 \\ \hline
+}
+
+\newcommand{\substep}[4]{
+	\stepcounter{substepcount}
+	\theparentstep.\thesubstepcount\ #1 & #2 & \texttt{#3} & #4 \\ \hline
+}
+
+% lazy step: use it when the operation will not be reflected in the system
+\newcommand{\lstep}[1]{
+	\step{#1}{-}{-}{-}
+}
+
+% lazy sub step: use it when the operation will not be reflected in the system
+\newcommand{\lsubstep}[1]{
+	\substep{#1}{-}{-}{-}
+}
+
+\newcommand{\normalFlowHeader}{
+	\setcounter{stepcount}{0}
+	
+	\vspace{1em}
+	
+	\noindent
+	\begin{tcolorbox}[
+		enhanced,
+		sharp corners,
+		boxrule=0pt,
+		frame hidden,
+		colback=normalGreen!8!white,
+		left=5pt, right=5pt,
+		top=8pt, bottom=8pt,
+		after skip=0pt,
+		]
+		{\color{normalGreen}\Large\bfseries Fluxo Normal}
+	\end{tcolorbox}
+	\nointerlineskip
+}
+
+\newcommand{\subFlowHeader}[4]{
+	\setcounter{substepcount}{0}
+	\def\theparentstep{#3}
+	
+	\noindent
+	\begin{tcolorbox}[
+		enhanced,
+		sharp corners,
+		boxrule=0pt,
+		frame hidden,
+		colback=#1!8!white,
+		left=5pt, right=5pt,
+		top=5pt, bottom=5pt,
+		after skip=0pt,
+		]
+		{\color{#1}\Large\bfseries #2} \vspace{0.3em} \\
+		\noindent\hspace{2pt}\vrule width 2pt depth 0.8ex height 2.2ex \hspace{0.5em}
+		\begin{minipage}{\dimexpr\textwidth-25pt}
+			\small \textbf{PASSO #3} \quad \textbullet \quad \textbf{CONDIÇÃO:} \textit{#4}
+		\end{minipage}
+	\end{tcolorbox}
+	\nointerlineskip
+}
+
+\begin{document}
+
+	\ucHeader{Instalar Teo}
+	{O Actor dirige-se ao local de instalação e efectua-a}
+	{}
+	{Existem instalações a efectuar}
+	{Instalação efectuada com sucesso}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\step{Sistema determina próximos instalações e apresenta lista ao Actor}{Determinar próximas instalações}{obterProximasInstalacoes() : List<Instalacao>}{Comercial}
+		\lstep{Actor selecciona instalação a partir da informação fornecida pelo sistema}
+		\step{Sistema apresenta ficha de pedido}{Consultar ficha de pedido}{getPedido(pedido : String) : Pedido}{Comercial}
+		\lstep{Actor indica número do contrato de linha}
+		\lstep{Actor indica leitura da força de sinal}
+		\step{Sistema valida força de sinal e informa Actor de que força de sinal é adequada}{Validar força do sinal}{validaForcaSinal(potencia : float) : boolean}{Tecnico}
+		\lstep{Actor regista IPs do ponto de acesso e das boxes}
+		\step{Sistema regista as informações fornecidas no contrato}{Registar informações no contrato}{registarInformacoes(pontoAcessoIP : IP, boxIP : IP) : void}{Tecnico}
+		\step{Actor confirma o bom funcionamento da instalação}{Registar funcionamento da instalação}{registarFuncionamento(inst : String, estado : boolean) : void}{Tecnico}
+		\lstep{Sistema encerra processo}
+	\end{flowtable}
+	
+	\subFlowHeader{altOrange}{Fluxo Alternativo}{4}{Contrato de linha inexistente}
+	\begin{flowtable}
+		\lsubstep{Actor indica inexistência de contrato de linha}
+		\substep{Sistema regista novo contrato de linha}{Registar novo contrato de linha}{criarContrato(utente : String) : Contrato}{Comercial}
+		\lsubstep{Regressa a 5}
+	\end{flowtable}
+
+	\newpage
+
+	\subFlowHeader{altOrange}{Fluxo Alternativo}{6}{Força de sinal demasiado forte}
+	\begin{flowtable}
+		\lsubstep{Sistema não consegue validar força de sinal demasiado forte e informa Actor}
+		\substep{Sistema calcula impedância dos atenuadores}{Calcular impedância dos atenuadores}{calcularImpedancia(atenuador : String) : float}{Tecnico}
+		\lsubstep{Sistema indica impedâncias}
+		\substep{Actor confirma instalação dos atenuadores}{Registar instalação}{registarInstalacao(utente : String, contrato : String) : Instalacao}{Comercial}
+		\lsubstep{Regressa a 7}
+	\end{flowtable}
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{4}{Impossível aceder ao local}
+	\begin{flowtable}
+		\lsubstep{Actor indica impossibilidade de acesso}
+		\substep{Sistema regista impossibilidade de acesso e cancela instalação}{Registar impossibilidade de acesso}{registarImpossibilidade(contrato : String) : void}{Comercial}
+	\end{flowtable}
+
+	\subFlowHeader{excRed}{Fluxo de Exceção}{6}{Força de sinal demasiado fraca}
+	\begin{flowtable}
+		\lsubstep{Sistema não consegue validar força de sinal demasiado fraca e informa Actor}
+		\lsubstep{Sistema cancela instalação}
+	\end{flowtable}
+	
+\end{document}

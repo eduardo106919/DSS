@@ -1,0 +1,211 @@
+\documentclass[11pt, landscape]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage[table, dvipsnames]{xcolor}
+\usepackage{tabularx}
+\usepackage{fontspec}
+\usepackage{etoolbox}
+\usepackage{enumitem}
+\usepackage{environ}
+\usepackage{xltabular}
+\usepackage[most]{tcolorbox}
+
+\setmainfont{PT Sans} 
+\usepackage[portuguese]{babel}
+
+% --- Color Palette ---
+\definecolor{primaryBlue}{HTML}{2C3E50}
+\definecolor{normalGreen}{HTML}{27AE60}
+\definecolor{altOrange}{HTML}{E67E22}
+\definecolor{excRed}{HTML}{C0392B}
+\definecolor{lightGray}{HTML}{F8F9FA}
+\definecolor{borderGray}{HTML}{D1D1D1}
+
+% --- Table Styling ---
+\renewcommand{\arraystretch}{1.6}
+\setlength{\arrayrulewidth}{0.5pt}
+\arrayrulecolor{borderGray}
+
+% --- Counters ---
+\newcounter{stepcount}
+\newcounter{substepcount}
+
+% --- Commands ---
+
+\newcommand{\ucHeader}[5]{
+	\noindent {\color{primaryBlue}\Huge \textbf{Caso de Uso: #1}}
+	
+	\vspace{1.5em}
+	\noindent
+	\begin{tabularx}{\textwidth}{|l|X|}
+		\hline
+		\rowcolor{lightGray} \textbf{Descrição} & #2 \\ \hline
+		\textbf{Cenários} & #3 \\ \hline
+		\rowcolor{lightGray} \textbf{Pré-condições} & #4 \\ \hline
+		\textbf{Pós-condições} & #5 \\ \hline
+	\end{tabularx}
+}
+
+\NewEnviron{flowtable}{
+	\noindent
+	\begin{xltabular}{\textwidth}{|>{\hsize=1.4\hsize}X|>{\hsize=0.8\hsize}X|>{\hsize=1.2\hsize}X|>{\hsize=0.6\hsize}X|}
+		\hline
+		\rowcolor{lightGray} 
+		\textbf{Passos} & \textbf{Lógica de Negócio} & \textbf{Definição da API} & \textbf{Subsistema} \\ \hline
+		\endfirsthead
+		
+		\hline
+		\rowcolor{lightGray} 
+		\textbf{Passos} & \textbf{Lógica de Negócio} & \textbf{Definição da API} & \textbf{Subsistema} \\ \hline
+		\endhead
+		
+		\BODY
+	\end{xltabular}
+}
+
+\newcommand{\step}[4]{
+	\stepcounter{stepcount}
+	\thestepcount. #1 & #2 & \texttt{#3} & #4 \\ \hline
+}
+
+\newcommand{\substep}[4]{
+	\stepcounter{substepcount}
+	\theparentstep.\thesubstepcount\ #1 & #2 & \texttt{#3} & #4 \\ \hline
+}
+
+% lazy step: use it when the operation will not be reflected in the system
+\newcommand{\lstep}[1]{
+	\step{#1}{-}{-}{-}
+}
+
+% lazy sub step: use it when the operation will not be reflected in the system
+\newcommand{\lsubstep}[1]{
+	\substep{#1}{-}{-}{-}
+}
+
+\newcommand{\normalFlowHeader}{
+	\setcounter{stepcount}{0}
+	
+	\vspace{1em}
+	
+	\noindent
+	\begin{tcolorbox}[
+		enhanced,
+		sharp corners,
+		boxrule=0pt,
+		frame hidden,
+		colback=normalGreen!8!white,
+		left=5pt, right=5pt,
+		top=8pt, bottom=8pt,
+		after skip=0pt,
+		]
+		{\color{normalGreen}\Large\bfseries Fluxo Normal}
+	\end{tcolorbox}
+	\nointerlineskip
+}
+
+\newcommand{\subFlowHeader}[4]{
+	\setcounter{substepcount}{0}
+	\def\theparentstep{#3}
+	
+	\noindent
+	\begin{tcolorbox}[
+		enhanced,
+		sharp corners,
+		boxrule=0pt,
+		frame hidden,
+		colback=#1!8!white,
+		left=5pt, right=5pt,
+		top=5pt, bottom=5pt,
+		after skip=0pt,
+		]
+		{\color{#1}\Large\bfseries #2} \vspace{0.3em} \\
+		\noindent\hspace{2pt}\vrule width 2pt depth 0.8ex height 2.2ex \hspace{0.5em}
+		\begin{minipage}{\dimexpr\textwidth-25pt}
+			\small \textbf{PASSO #3} \quad \textbullet \quad \textbf{CONDIÇÃO:} \textit{#4}
+		\end{minipage}
+	\end{tcolorbox}
+	\nointerlineskip
+}
+
+\begin{document}
+	
+	\ucHeader{Nome do Use Case}
+	{Descrição breve do Use Case}
+	{Cenários em que o Use Case está presente}
+	{Condições necessárias para a execução do Use Case}
+	{Condições a satisfazer no fim do Use Case}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\step{}{-}{-}{-}
+		\step{}{-}{-}{-}
+		\step{}{-}{-}{-}
+		\step{}{-}{-}{-}
+		\step{}{-}{-}{-}
+		\step{}{-}{-}{-}
+	\end{flowtable}
+	
+	%\newpage
+	
+	\subFlowHeader{altOrange}{Fluxo Alternativo}{número}{condição que deu origem ao fluxo alternativo}
+	\begin{flowtable}
+		\step{}{-}{-}{-}
+		\step{}{-}{-}{-}
+	\end{flowtable}
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{número}{condição que deu origem ao fluxo alternativo}
+	\begin{flowtable}
+		\step{}{-}{-}{-}
+		\step{}{-}{-}{-}
+	\end{flowtable}
+	
+	
+	\newpage
+
+	\ucHeader{Instalar Painéis}
+	{O Actor dirige-se a local de instalação e efectua-a.}
+	{}
+	{Existem instalações a efectuar}
+	{Instalação efectuada com sucesso}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\step{Sistema determina próximas instalações e comunica-as ao Actor}{Obter próximos pedidos de instalação}{getProximosPedidos() : List<Pedido>}{Comercial}
+		\lstep{Actor selecciona instalação a realizar}
+		\step{Sistema apresenta informação do pedido de instalação}{Consultar informação do pedido de instalação}{getPedido(codPedido : String) : Pedido}{Comercial}
+		\lstep{Actor indica número do contrato de energia}
+		\lstep{Actor indica orientação e potência dos painéis a instalar e consumo típico da casa}
+		\step{Sistema valida orientação e informa Actor de que esta é adequada}{Validar orientação e potência dos painéis}{validarPainel(ori : Orientacao, potencia : float, consumo : float) : boolean}{Tecnico}
+		\lstep{Actor indica IPs do meter e da box}
+		\step{Sistema regista as informações fornecidas no contrato}{Registar instalação de painéis}{registarInstalacao(nrContrato : String, meterIP : IP, boxIP : IP) : void}{Cliente}
+		\step{Actor confirma o bom funcionamento da instalação}{Registar funcionamento da instalação}{registarFuncionamento(nrContrato : String, estado : boolean) : void}{Cliente}
+		\lstep{Sistema encerra processo}
+	\end{flowtable}
+	
+	\subFlowHeader{altOrange}{Fluxo Alternativo}{4}{contrato de energia inexistente}
+	\begin{flowtable}
+		\lsubstep{Actor indica inexistência de contrato de energia}
+		\substep{Sistema regista novo contrato de energia}{Registar novo contrato de energia}{criarContrato(nrPedido : String) : void}{Cliente}
+		\lsubstep{regressa a 5}
+	\end{flowtable}
+	
+	\subFlowHeader{altOrange}{Fluxo Alternativo}{6}{produção será excessiva no pico de produção}
+	\begin{flowtable}
+		\lsubstep{Sistema ao validar orientação conclui que ela será excessiva no pico de produção}
+		\substep{Sistema calcula capacidade ideal da bateria a instalar}{Calcular capacidade ideal da bateria}{calcularCapacidade(potencia : float, consumo : float) : int}{Tecnico}
+		\substep{Sistema regista possibilidade de instalação de bateria (para contacto posterior) e informa Actor}{Registar contacto para serviço de bateria}{registarContacto(contacto : int, consumo : float) : void}{Comercial}
+		\lstep{regressa a 7}
+	\end{flowtable}
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{4}{impossível aceder ao local}
+	\begin{flowtable}
+		\lsubstep{Actor indica impossibilidade de acesso}
+		\substep{Sistema regista impossibilidade de acesso e adia instalação}{Registar impossibilidade de instalação}{registarImpossibilidade(nrPedido : String, motivo : String) : void}{Comercial}
+	\end{flowtable}
+
+	\subFlowHeader{excRed}{Fluxo de Exceção}{9}{ator indica mau funcionamento da instalação}
+	\begin{flowtable}
+		\substep{Sistema regista mau funcionamento da instalação}{Registar funcionamento da instalação}{registarFuncionamento(nrContrato : String, estado : boolean) : void}{Cliente}
+	\end{flowtable}
+	
+\end{document}

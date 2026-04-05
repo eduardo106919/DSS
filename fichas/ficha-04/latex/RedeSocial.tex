@@ -1,0 +1,199 @@
+\documentclass[11pt, landscape]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage[table, dvipsnames]{xcolor}
+\usepackage{tabularx}
+\usepackage{fontspec}
+\usepackage{etoolbox}
+\usepackage{enumitem}
+\usepackage{environ}
+\usepackage{xltabular}
+\usepackage[most]{tcolorbox}
+
+\setmainfont{PT Sans} 
+\usepackage[portuguese]{babel}
+
+% --- Color Palette ---
+\definecolor{primaryBlue}{HTML}{2C3E50}
+\definecolor{normalGreen}{HTML}{27AE60}
+\definecolor{altOrange}{HTML}{E67E22}
+\definecolor{excRed}{HTML}{C0392B}
+\definecolor{lightGray}{HTML}{F8F9FA}
+\definecolor{borderGray}{HTML}{D1D1D1}
+
+% --- Table Styling ---
+\renewcommand{\arraystretch}{1.6}
+\setlength{\arrayrulewidth}{0.5pt}
+\arrayrulecolor{borderGray}
+
+% --- Counters ---
+\newcounter{stepcount}
+\newcounter{substepcount}
+
+% --- Commands ---
+
+\newcommand{\ucHeader}[5]{
+	\noindent {\color{primaryBlue}\Huge \textbf{Caso de Uso: #1}}
+	
+	\vspace{1.5em}
+	\noindent
+	\begin{tabularx}{\textwidth}{|l|X|}
+		\hline
+		\rowcolor{lightGray} \textbf{Descrição} & #2 \\ \hline
+		\textbf{Cenários} & #3 \\ \hline
+		\rowcolor{lightGray} \textbf{Pré-condições} & #4 \\ \hline
+		\textbf{Pós-condições} & #5 \\ \hline
+	\end{tabularx}
+}
+
+\NewEnviron{flowtable}{
+	\noindent
+	\begin{xltabular}{\textwidth}{|>{\hsize=1.4\hsize}X|>{\hsize=0.8\hsize}X|>{\hsize=1.2\hsize}X|>{\hsize=0.6\hsize}X|}
+		\hline
+		\rowcolor{lightGray} 
+		\textbf{Passos} & \textbf{Lógica de Negócio} & \textbf{Definição da API} & \textbf{Subsistema} \\ \hline
+		\endfirsthead
+		
+		\hline
+		\rowcolor{lightGray} 
+		\textbf{Passos} & \textbf{Lógica de Negócio} & \textbf{Definição da API} & \textbf{Subsistema} \\ \hline
+		\endhead
+		
+		\BODY
+	\end{xltabular}
+}
+
+\newcommand{\step}[4]{
+	\stepcounter{stepcount}
+	\thestepcount. #1 & #2 & \texttt{#3} & #4 \\ \hline
+}
+
+\newcommand{\substep}[4]{
+	\stepcounter{substepcount}
+	\theparentstep.\thesubstepcount\ #1 & #2 & \texttt{#3} & #4 \\ \hline
+}
+
+% lazy step: use it when the operation will not be reflected in the system
+\newcommand{\lstep}[1]{
+	\step{#1}{-}{-}{-}
+}
+
+% lazy sub step: use it when the operation will not be reflected in the system
+\newcommand{\lsubstep}[1]{
+	\substep{#1}{-}{-}{-}
+}
+
+\newcommand{\normalFlowHeader}{
+	\setcounter{stepcount}{0}
+	
+	\vspace{1em}
+	
+	\noindent
+	\begin{tcolorbox}[
+		enhanced,
+		sharp corners,
+		boxrule=0pt,
+		frame hidden,
+		colback=normalGreen!8!white,
+		left=5pt, right=5pt,
+		top=8pt, bottom=8pt,
+		after skip=0pt,
+		]
+		{\color{normalGreen}\Large\bfseries Fluxo Normal}
+	\end{tcolorbox}
+	\nointerlineskip
+}
+
+\newcommand{\subFlowHeader}[4]{
+	\setcounter{substepcount}{0}
+	\def\theparentstep{#3}
+	
+	\noindent
+	\begin{tcolorbox}[
+		enhanced,
+		sharp corners,
+		boxrule=0pt,
+		frame hidden,
+		colback=#1!8!white,
+		left=5pt, right=5pt,
+		top=5pt, bottom=5pt,
+		after skip=0pt,
+		]
+		{\color{#1}\Large\bfseries #2} \vspace{0.3em} \\
+		\noindent\hspace{2pt}\vrule width 2pt depth 0.8ex height 2.2ex \hspace{0.5em}
+		\begin{minipage}{\dimexpr\textwidth-25pt}
+			\small \textbf{PASSO #3} \quad \textbullet \quad \textbf{CONDIÇÃO:} \textit{#4}
+		\end{minipage}
+	\end{tcolorbox}
+	\nointerlineskip
+}
+
+\begin{document}
+
+	\ucHeader{Iniciar Sessão}
+	{Utilizador autentica-se na rede social}
+	{Cenário 1}
+	{Utilizador não autenticado}
+	{Utilizador autenticado e com acesso à rede social}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\lstep{Utilizador apresenta o seu identificador e senha}
+		\step{Sistema valida identificador e senha}{Validar credenciais do utilizador}{validarUtilizador(id : String, senha : Strring) : boolean}{Utilizador}
+		\step{Sistema apresenta uma lista de publicações feitas ou partilhadas pelas pessoas que segue}{Apresentar publicações de seguidores}{getPublicacoesSeguidores() : List<Publicacao>}{Publicacoes}
+	\end{flowtable}
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{2}{Credenciais inválidas}
+	\begin{flowtable}
+		\lstep{Sistema informa que credenciais são inválidas}
+	\end{flowtable}
+
+	\newpage
+	
+	\ucHeader{Adicionar Publicação}
+	{Utilizador adiciona uma publicação}
+	{Cenário 2}
+	{Utilizador autenticado}
+	{Sistema tem mais uma publicação}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\lstep{Utilizador adiciona o conteúdo da publicação}
+		\step{Sistema valida conteúdo da publicação}{Validar conteúdo de publicação}{validarConteudo(conteudo : String) : boolean}{Publicacoes}
+		\step{Sistema adiciona a nova publicação}{Adicionar publicacao ao sistema}{adicionarPublicacao(conteudo : String) : void}{Publicacoes}
+	\end{flowtable}
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{2}{Conteúdo da publicação inválido}
+	\begin{flowtable}
+		\lsubstep{Sistema informa que conteúdo da publicação quebra as regras}
+	\end{flowtable}
+
+	\newpage
+	
+	\ucHeader{Comentar Publicação}
+	{Utilizador comenta uma publicação de outro Utilizador}
+	{Cenário 1}
+	{Utilizador autenticado}
+	{Comentário adicionado a publicação}
+	
+	\normalFlowHeader
+	\begin{flowtable}
+		\lstep{Utilizador seleciona uma publicação}
+		\lstep{Utilizador escreve comentário}
+		\step{Sistema valida conteúdo do comentário}{Validar conteúdo do comentário}{validarConteudo(conteudo : String) : boolean}{Publicacoes}
+		\step{Sistema adiciona comentário à publicação}{Comentar publicação}{comentarPublicacao(comentario : String, codPubl : String) : void}{Publicacoes}
+	\end{flowtable}
+	
+	\subFlowHeader{altOrange}{Fluxo Alternativo}{2}{Utilizador reage com emoji}
+	\begin{flowtable}
+		\lsubstep{Utilizador escolher emoji}
+		\lsubstep{Regressa a 4}
+	\end{flowtable}
+	
+	\newpage
+	
+	\subFlowHeader{excRed}{Fluxo de Exceção}{3}{Conteúdo do comentário inválido}
+	\begin{flowtable}
+		\lsubstep{Sistema informa que conteúdo do comentário quebras as regras}
+	\end{flowtable}
+	
+\end{document}
